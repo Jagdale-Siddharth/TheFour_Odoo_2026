@@ -1,0 +1,37 @@
+// TransitOps - Backend Foundation
+// Owned by Member 1. Do not add Vehicle/Trip/Driver/Maintenance/Fuel models here
+// unless the team has agreed on shared foreign key types with other members.
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+enum Role {
+  FLEET_MANAGER
+  DISPATCHER
+  SAFETY_OFFICER
+  FINANCIAL_ANALYST
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
