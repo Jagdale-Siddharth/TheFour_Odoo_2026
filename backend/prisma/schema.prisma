@@ -1,0 +1,196 @@
+// ============================================================
+// TransitOps - SHARED schema.prisma (single source of truth)
+// Datasource: MySQL, DB reached over Tailscale.
+// ============================================================
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "mysql"
+  url      = env("DATABASE_URL")
+}
+
+// ---------------- USER / AUTH (Member 1 - copied verbatim, do not retype) ----------------
+
+enum Role {
+  FLEET_MANAGER
+  DISPATCHER
+  SAFETY_OFFICER
+  FINANCIAL_ANALYST
+}
+
+enum Status {
+  ACTIVE
+  INACTIVE
+}
+
+model User {
+  id        String   @id @default(uuid())
+  name      String
+  email     String   @unique
+  password  String
+  role      Role
+  status    Status   @default(ACTIVE)
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("users")
+}
+
+// ---------------- ENUMS (Member 2 - Fleet) ----------------
+
+enum VehicleStatus {
+  AVAILABLE
+  ON_TRIP
+  IN_SHOP
+  RETIRED
+}
+
+enum DriverStatus {
+  AVAILABLE
+  ON_TRIP
+  OFF_DUTY
+  SUSPENDED
+}
+
+enum MaintenanceStatus {
+  OPEN
+  IN_PROGRESS
+  COMPLETED
+}
+
+// ---------------- MODELS ----------------
+
+model Vehicle {
+  id                 Int           @id @default(autoincrement())
+  registrationNumber String        @unique
+  vehicleName        String
+  vehicleType        String
+  maxLoadCapacity    Decimal       @db.Decimal(10, 2)
+  odometer           Decimal       @default(0) @db.Decimal(10, 2)
+  acquisitionCost    Decimal?      @db.Decimal(12, 2)
+  status             VehicleStatus @default(AVAILABLE)
+  createdAt          DateTime      @default(now())
+  updatedAt          DateTime      @updatedAt
+
+  maintenanceRecords Maintenance[]
+
+  @@index([status])
+  @@map("vehicles")
+}
+
+model Driver {
+  id                Int          @id @default(autoincrement())
+  name              String
+  licenseNumber     String       @unique
+  licenseCategory   String
+  licenseExpiryDate DateTime
+  contactNumber     String
+  safetyScore       Int          @default(100)
+  status            DriverStatus @default(AVAILABLE)
+  createdAt         DateTime     @default(now())
+  updatedAt         DateTime     @updatedAt
+
+  @@index([status])
+  @@map("drivers")
+}
+
+model Maintenance {
+  id              Int               @id @default(autoincrement())
+  vehicleId       Int
+  vehicle         Vehicle           @relation(fields: [vehicleId], references: [id])
+  maintenanceType String
+  description     String            @db.Text
+  startDate       DateTime          @default(now())
+  completedDate   DateTime?
+  status          MaintenanceStatus @default(OPEN)
+  estimatedCost   Decimal?          @db.Decimal(12, 2)
+  actualCost      Decimal?          @db.Decimal(12, 2)
+  createdBy       String?
+  createdAt       DateTime          @default(now())
+
+  @@index([vehicleId])
+  @@index([status])
+  @@map("maintenance")
+}
+
+// ---------------- TRIP ENGINE (Member 3) ----------------
+// vehicleId / driverId are plain scalar foreign keys with NO Prisma `@relation`
+// to Vehicle/Driver on purpose - Member 3's app code talks to Member 2's
+// Vehicle/Driver API over HTTP, never through a direct Prisma relation.
+// They line up with Vehicle.id / Driver.id above, both Int @autoincrement.
+
+enum TripStatus {
+  DRAFT
+  DISPATCHED
+  COMPLETED
+  CANCELLED
+}
+
+enum ExpenseType {
+  FUEL
+  TOLL
+  REPAIR
+  PARKING
+  MISCELLANEOUS
+}
+
+model Trip {
+  id              Int         @id @default(autoincrement())
+  tripNumber      String      @unique
+  source          String
+  destination     String
+  vehicleId       Int
+  driverId        Int
+  cargoWeight     Float
+  plannedDistance Float
+  actualDistance  Float?
+  status          TripStatus  @default(DRAFT)
+  dispatchDate    DateTime?
+  completionDate  DateTime?
+  createdBy       String // matches User.id (uuid string)
+  createdAt       DateTime    @default(now())
+  updatedAt       DateTime    @updatedAt
+
+  fuelLogs FuelLog[]
+  expenses Expense[]
+
+  @@index([vehicleId])
+  @@index([driverId])
+  @@index([status])
+  @@map("trips")
+}
+
+model FuelLog {
+  id        Int      @id @default(autoincrement())
+  tripId    Int
+  vehicleId Int
+  liters    Float
+  cost      Float
+  fuelDate  DateTime
+  odometer  Float
+  createdAt DateTime @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@index([vehicleId])
+  @@map("fuel_logs")
+}
+
+model Expense {
+  id          Int         @id @default(autoincrement())
+  tripId      Int
+  expenseType ExpenseType
+  amount      Float
+  description String
+  expenseDate DateTime
+  createdAt   DateTime    @default(now())
+
+  trip Trip @relation(fields: [tripId], references: [id], onDelete: Cascade)
+
+  @@index([tripId])
+  @@map("expenses")
+}

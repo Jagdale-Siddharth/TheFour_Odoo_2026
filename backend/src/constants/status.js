@@ -1,0 +1,26 @@
+// Single source of truth for status strings used across the Trip Engine.
+// These MUST match the enums in prisma/schema.prisma and whatever Member 2
+// uses for Vehicle/Driver status.
+
+const VEHICLE_STATUS = Object.freeze({
+  AVAILABLE: "AVAILABLE",
+  ON_TRIP: "ON_TRIP",
+  IN_SHOP: "IN_SHOP",
+  RETIRED: "RETIRED",
+});
+
+const DRIVER_STATUS = Object.freeze({
+  AVAILABLE: "AVAILABLE",
+  ON_TRIP: "ON_TRIP",
+  OFF_DUTY: "OFF_DUTY",
+  SUSPENDED: "SUSPENDED",
+});
+
+const TRIP_STATUS = Object.freeze({
+  DRAFT: "DRAFT",
+  DISPATCHED: "DISPATCHED",
+  COMPLETED: "COMPLETED",
+  CANCELLED: "CANCELLED",
+});
+
+module.exports = { VEHICLE_STATUS, DRIVER_STATUS, TRIP_STATUS };
