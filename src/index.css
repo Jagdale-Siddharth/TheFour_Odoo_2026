@@ -1,0 +1,81 @@
+@import "tailwindcss";
+@import url('https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@500;600;700&family=Inter:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
+@custom-variant dark (&:where(.dark, .dark *));
+
+@theme {
+  /*
+   * "Transit Line" palette — grounded in route-map signage rather than a
+   * generic SaaS blue-on-white: a clear signal-blue for the primary line,
+   * a warm caution-amber reserved for the one accent moment, cool violet-grey
+   * canvas instead of pure white or cream.
+   */
+  --color-canvas: #F5F6FC;
+  --color-surface: #FFFFFF;
+  --color-surface-sunken: #EEF0F9;
+  --color-ink: #1A2035;
+  --color-muted: #6B7290;
+  --color-line: #E6E8F3;
+
+  --color-primary: #3652D9;
+  --color-primary-hover: #2A40B0;
+  --color-primary-soft: #EAEDFC;
+
+  --color-accent: #FF8A3D;
+  --color-accent-soft: #FFEEE0;
+
+  --color-success: #17A672;
+  --color-success-soft: #E4F7EF;
+  --color-warning: #D48806;
+  --color-warning-soft: #FBF0DE;
+  --color-danger: #E0483E;
+  --color-danger-soft: #FCEAE8;
+  --color-info: #0EA8C7;
+  --color-info-soft: #E1F6FA;
+
+  --font-display: 'Space Grotesk', 'Inter', sans-serif;
+  --font-body: 'Inter', sans-serif;
+  --font-mono: 'IBM Plex Mono', ui-monospace, monospace;
+
+  --shadow-card: 0 1px 2px rgba(26, 32, 53, 0.04), 0 8px 24px -12px rgba(26, 32, 53, 0.10);
+  --shadow-pop: 0 4px 12px rgba(26, 32, 53, 0.08), 0 16px 32px -12px rgba(26, 32, 53, 0.16);
+}
+
+/* Dark mode overrides (class-based, optional toggle) */
+.dark {
+  --color-canvas: #10131F;
+  --color-surface: #171B2C;
+  --color-surface-sunken: #1E2336;
+  --color-ink: #EDEEF7;
+  --color-muted: #9096B5;
+  --color-line: #292F47;
+  --color-primary-soft: #1E2650;
+  --shadow-card: 0 1px 2px rgba(0,0,0,0.3), 0 8px 24px -12px rgba(0,0,0,0.5);
+}
+
+body {
+  background-color: var(--color-canvas);
+  color: var(--color-ink);
+  font-family: var(--font-body);
+}
+
+h1, h2, h3, h4, .font-display {
+  font-family: var(--font-display);
+}
+
+.font-mono-data {
+  font-family: var(--font-mono);
+  font-variant-numeric: tabular-nums;
+}
+
+/* Signature device: status rail — a thin left border of the entity's status color,
+   echoing the colored signal strip on a real dispatch board. Used consistently
+   instead of scattering accent color decoratively. */
+.status-rail {
+  border-left-width: 3px;
+  border-left-style: solid;
+}
+
+::-webkit-scrollbar { width: 8px; height: 8px; }
+::-webkit-scrollbar-thumb { background: var(--color-line); border-radius: 999px; }
+::-webkit-scrollbar-track { background: transparent; }
