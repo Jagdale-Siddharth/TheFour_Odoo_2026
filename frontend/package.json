@@ -1,0 +1,10 @@
+{
+  "_comment": "Merge these into the project's single shared frontend package.json - do not run this as a separate app.",
+  "dependencies": {
+    "@hookform/resolvers": "^3.9.0",
+    "axios": "^1.7.2",
+    "react-hook-form": "^7.52.1",
+    "react-toastify": "^10.0.5",
+    "zod": "^3.23.8"
+  }
+}
